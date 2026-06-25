@@ -13,7 +13,6 @@ The program scans recent Gmail messages, detects free-text meeting requests, ext
 - `PRD.md` - product requirements document.
 - `PLAN.md` - implementation plan.
 - `TODO.md` - remaining task checklist.
-- `manual.pdf` / `manual.docx` - assignment manual.
 
 ## Requirements Covered
 
