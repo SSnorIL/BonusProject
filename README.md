@@ -73,31 +73,31 @@ Optional arguments:
 # Execution Screenshots
 
 ## 1. Initial TOML parsing error
-![Initial TOML parsing error](1.png)
+![Initial TOML parsing error](screenshots/1.png)
 
 ## 2. Dependencies installed and first Python syntax error
-![Dependencies installed and first Python syntax error](2.png)
+![Dependencies installed and first Python syntax error](screenshots/2.png)
 
 ## 3. Gmail draft creation and Calendar event creation
-![Gmail draft creation and Calendar event creation](3.png)
+![Gmail draft creation and Calendar event creation](screenshots/3.png)
 
 ## 4. Gmail draft created
-![Gmail draft created](4.png)
+![Gmail draft created](screenshots/4.png)
 
 ## 5. Google Calendar event
-![Google Calendar event](5.png)
+![Google Calendar event](screenshots/5.png)
 
 ## 6. Gmail reply example
-![Gmail reply example](6.png)
+![Gmail reply example](screenshots/6.png)
 
 ## 7. Successful processing summary
-![Successful processing summary](7.png)
+![Successful processing summary](screenshots/7.png)
 
 ## 8. Screenshot 1
-![Screenshot 1](Screenshot_1.png)
+![Screenshot 1](screenshots/Screenshot_1.png)
 
 ## 9. Screenshot 2
-![Screenshot 2](Screenshot_2.png)
+![Screenshot 2](screenshots/Screenshot_2.png)
 
 ## 10. Screenshot 3
-![Screenshot 3](Screenshot_3.png)
+![Screenshot 3](screenshots/Screenshot_3.png)
