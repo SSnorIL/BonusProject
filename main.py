@@ -27,7 +27,7 @@ TOKEN_FILE = "token.json"
 DEFAULT_TIME_ZONE = os.getenv("DEFAULT_TIME_ZONE", "Asia/Jerusalem")
 DEFAULT_CALENDAR_ID = os.getenv("DEFAULT_CALENDAR_ID", "primary")
 DEFAULT_DURATION_MINUTES = os.getenv("DEFAULT_MEETING_DURATION_MINUTES")
-PROCESSED_LABEL = "MeetingSkillProcessed"
+DEFAULT_PROCESSED_LABEL = os.getenv("PROCESSED_LABEL", "MeetingSkillProcessed")
 
 MEETING_KEYWORDS = (
     "meeting",
@@ -260,7 +260,10 @@ def parse_date(text: str, received_at: datetime) -> date | None:
     lowered = text.lower()
 
     if match := re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", lowered):
-        return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+        try:
+            return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+        except ValueError:
+            return None
 
     if match := re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{2,4})\b", lowered):
         day = int(match.group(1))
@@ -268,7 +271,10 @@ def parse_date(text: str, received_at: datetime) -> date | None:
         year = int(match.group(3))
         if year < 100:
             year += 2000
-        return date(year, month, day)
+        try:
+            return date(year, month, day)
+        except ValueError:
+            return None
 
     base = received_at.date()
     if "today" in lowered:
@@ -278,7 +284,10 @@ def parse_date(text: str, received_at: datetime) -> date | None:
 
     for month_name, month_number in MONTHS.items():
         if match := re.search(rf"\b{month_name}\s+(\d{{1,2}})(?:st|nd|rd|th)?\b", lowered):
-            candidate = date(base.year, month_number, int(match.group(1)))
+            try:
+                candidate = date(base.year, month_number, int(match.group(1)))
+            except ValueError:
+                return None
             if candidate < base:
                 candidate = date(base.year + 1, month_number, int(match.group(1)))
             return candidate
@@ -307,7 +316,10 @@ def parse_time(text: str) -> time | None:
             hour += 12
         if meridiem == "am" and hour == 12:
             hour = 0
-        return time(hour, minute)
+        try:
+            return time(hour, minute)
+        except ValueError:
+            return None
 
     if match := re.search(r"\b(\d{1,2})\s*(am|pm)\b", lowered):
         hour = int(match.group(1))
@@ -316,22 +328,53 @@ def parse_time(text: str) -> time | None:
             hour += 12
         if meridiem == "am" and hour == 12:
             hour = 0
-        return time(hour, 0)
+        try:
+            return time(hour, 0)
+        except ValueError:
+            return None
 
     return None
 
 
-def parse_duration_minutes(text: str) -> int | None:
+def parse_duration_minutes(text: str, start_time: time | None = None) -> int | None:
     lowered = text.lower()
 
     if match := re.search(r"\bfor\s+(\d+)\s*(minutes?|mins?)\b", lowered):
-        return int(match.group(1))
+        duration = int(match.group(1))
+        return duration if duration > 0 else None
 
     if match := re.search(r"\bfor\s+(\d+(?:\.\d+)?)\s*(hours?|hrs?)\b", lowered):
-        return int(float(match.group(1)) * 60)
+        duration = int(float(match.group(1)) * 60)
+        return duration if duration > 0 else None
+
+    end_match = re.search(
+        r"\b(?:to|until|till|-)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b",
+        lowered,
+    )
+    if start_time is not None and end_match:
+        end_hour = int(end_match.group(1))
+        end_minute = int(end_match.group(2) or 0)
+        meridiem = end_match.group(3)
+        if meridiem == "pm" and end_hour < 12:
+            end_hour += 12
+        if meridiem == "am" and end_hour == 12:
+            end_hour = 0
+        try:
+            end_time = time(end_hour, end_minute)
+        except ValueError:
+            return None
+        start_minutes = start_time.hour * 60 + start_time.minute
+        end_minutes = end_time.hour * 60 + end_time.minute
+        if end_minutes <= start_minutes:
+            end_minutes += 24 * 60
+        return end_minutes - start_minutes
 
     if DEFAULT_DURATION_MINUTES:
-        return int(DEFAULT_DURATION_MINUTES)
+        try:
+            duration = int(DEFAULT_DURATION_MINUTES)
+            return duration if duration > 0 else None
+        except ValueError:
+            return None
 
     return None
 
@@ -368,11 +411,12 @@ def clean_title(subject: str, body: str) -> str | None:
 
 def parse_meeting_details(message: GmailMessage) -> MeetingDetails:
     text = f"{message.subject}\n{message.body}"
+    start_time = parse_time(text)
     return MeetingDetails(
         title=clean_title(message.subject, message.body),
         meeting_date=parse_date(text, message.received_at),
-        start_time=parse_time(text),
-        duration_minutes=parse_duration_minutes(text),
+        start_time=start_time,
+        duration_minutes=parse_duration_minutes(text, start_time),
         location=parse_location(text),
         attendees=parse_attendees(text, message.sender_email),
     )
@@ -653,3 +697,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

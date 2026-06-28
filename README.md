@@ -66,3 +66,38 @@ Optional arguments:
 ## Security Notes
 
 `credentials.json` and `token.json` are local authentication files. They should not be shared publicly.
+
+
+---
+
+# Execution Screenshots
+
+## 1. Initial TOML parsing error
+![Initial TOML parsing error](1(2).png)
+
+## 2. Dependencies installed and first Python syntax error
+![Dependencies installed and first Python syntax error](2(2).png)
+
+## 3. Gmail draft creation and Calendar event creation
+![Gmail draft creation and Calendar event creation](3(3).png)
+
+## 4. Gmail draft created
+![Gmail draft created](4(1).png)
+
+## 5. Google Calendar event
+![Google Calendar event](5(1).png)
+
+## 6. Gmail reply example
+![Gmail reply example](6(1).png)
+
+## 7. Successful processing summary
+![Successful processing summary](7(1).png)
+
+## 8. Screenshot 1
+![Screenshot 1](Screenshot_1(3).png)
+
+## 9. Screenshot 2
+![Screenshot 2](Screenshot_2(1).png)
+
+## 10. Screenshot 3
+![Screenshot 3](Screenshot_3(1).png)
